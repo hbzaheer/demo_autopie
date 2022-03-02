@@ -1,0 +1,39 @@
+{
+    "recipe_type" : "collect_fact",
+    "target_fact" : {
+        "id": "dispositions", 
+        "entity_and_dims": "agent_id",
+        "date":"time_disposition_made"
+    },
+    "ingredients": {
+        "expression_extract": {  
+            "source_raw": "testsatmap.calldispositions",
+            "expression_list": [
+                {"expression": "to_timestamp(disposition_epoch)", "alias": "time_disposition_made"},
+                {"expression": "trim(customer_id)",  "alias": "customer_id"},             
+                {"expression": "lower(trim(agent_id))",  "alias": "agent_id"},
+                {"expression": "lower(trim(disp_code))",  "alias": "cat_disposition"}
+            ]
+        },
+        "filter_conjunctions": [
+            "agent_id is not null",
+            "customer_id is not null",
+            "cat_disposition in ('k', 'm', 'a')"
+        ],
+        "incremental_update_on": "time_disposition_made",
+        "deduplication": {
+            "grouping_key": "agent_id, cat_disposition, time_disposition_made",
+            "preference": "arbitrary"
+        },
+        "coarsening": {
+            "entity_and_dims": "agent_id",
+            "date_expression":"time_disposition_made",
+            "aggregations": [
+                {"expression": "max(customer_id)", "alias": "customer_id"},
+                {"expression": "sum(case when cat_disposition = 'k' then 1 else 0 end)", "alias": "flg_k_disp_made"},
+                {"expression": "sum(case when cat_disposition = 'm' then 1 else 0 end)", "alias": "flg_m_disp_made"},
+                {"expression": "sum(case when cat_disposition = 'a' then 1 else 0 end)", "alias": "flg_a_disp_made"}
+            ]
+        }
+    }
+}

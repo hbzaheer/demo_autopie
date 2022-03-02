@@ -1,0 +1,23 @@
+{
+    "recipe_type" : "blend_join",
+    "target_fact" : "calls",
+    "source_fact" : "outcomes",
+    "ingredients": {
+        "conjunctions": [
+            "s.customer_id = t.customer_id",
+            "s.date_outcome >= date(t.time_call_start)"
+        ],
+        "match_preferences": [
+            "(date(t.time_call_start) - s.date_outcome)::int",
+            "(date(t.time_call_start) - t.time_call_start)::interval"
+        ],
+        "matched_expressions": [
+            {"expression": "s.sum_outcome_amount"}
+        ],
+        "from_source_to_target_mapping": "best",
+        "at_target_choose_sources": "collapse",
+        "target_collapse_aggregations": [
+            {"expression": "sum(sum_outcome_amount)", "alias": "sum_outcome_amount"}
+        ]
+    }
+}

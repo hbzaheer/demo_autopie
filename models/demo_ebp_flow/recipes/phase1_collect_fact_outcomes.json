@@ -1,0 +1,34 @@
+{
+    "recipe_type" : "collect_fact",
+    "target_fact" : {
+        "id": "outcomes", 
+        "entity_and_dims": "customer_id",
+        "date":"date_outcome"
+    },
+    "ingredients": {
+        "expression_extract": {  
+            "source_raw": "testsatmap.outcomes",
+            "expression_list": [
+                {"expression": "outcome_date", "alias": "date_outcome"},
+                {"expression": "trim(customer_id)", "alias": "customer_id"},             
+                {"expression": "outcome_code::numeric", "alias": "num_outcome_amount"}
+            ]
+        },
+        "filter_conjunctions": [
+            "num_outcome_amount > 0",
+            "customer_id is not null"
+        ],
+        "incremental_update_on": "date_outcome",
+        "deduplication": {
+            "grouping_key": "customer_id, date_outcome, num_outcome_amount",
+            "preference": "arbitrary"
+        },
+        "coarsening": {
+            "entity_and_dims": "customer_id",
+            "date_expression":"date_outcome",
+            "aggregations": [
+                {"expression": "sum(num_outcome_amount)", "alias": "sum_outcome_amount"}
+            ]
+        }
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "recipe_type" : "blend_window",
+    "target_fact" : "calls",
+    "ingredients": {  
+        "window_expression_list": [
+            {"expression":"lead(time_call_start) over (partition by agent_id order by time_call_start)", "alias":"time_agent_next_call", "data_type":"timestamp"},
+            {"expression":"lag(time_call_start) over (partition by agent_id order by time_call_start)", "alias":"time_agent_prev_call", "data_type":"timestamp"}
+        ]
+    }
+}

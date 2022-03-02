@@ -1,0 +1,36 @@
+{
+    "recipe_type" : "collect_fact",
+    "target_fact" : {
+        "id": "calls", 
+        "entity_and_dims": "call_id",
+        "date":"time_call_end"
+    },
+    "ingredients": {
+        "expression_extract": {  
+            "source_raw": "testsatmap.calltable",
+            "expression_list": [
+                {"expression": "call_id", "alias": "call_id"},
+                {"expression": "to_timestamp(call_start_epoch)", "alias": "time_call_start"},
+                {"expression": "to_timestamp(call_start_epoch + call_duration)", "alias": "time_call_end"},
+                {"expression": "call_duration", "alias": "num_duration_seconds"},
+                {"expression": "trim(customer_id)",  "alias": "customer_id"},
+                {"expression": "lower(trim(agent_id))",  "alias": "agent_id"}
+            ]
+        },
+        "expression_extract_outer": {  
+            "expression_list": [
+                {"expression": "round(num_duration_seconds/60,2)", "alias": "num_duration_minutes"}
+            ]
+        },
+        "filter_conjunctions": [
+            "agent_id is not null",
+            "customer_id is not null",
+            "num_duration_seconds > 10"
+        ],
+        "incremental_update_on": "time_call_start",
+        "deduplication": {
+            "grouping_key": "call_id",
+            "preference": "arbitrary"
+        }
+    }
+}

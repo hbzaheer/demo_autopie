@@ -1,0 +1,16 @@
+{
+    "recipe_type" : "chop_rollup",
+    "target_fact" : {"id": "agent_calls", "entity": "agent_id", "date": "date_call"},
+    "ingredients": {
+        "source_fact" : "calls",
+        "entity": "agent_id",
+        "date_expression": "date(time_call_start)",
+        "date_alias": "date_call",
+        "aggregations": [
+            {"expression": "sum(flg_k_disp_made)", "alias": "flg_k_disp_made"},
+            {"expression": "sum(flg_m_disp_made)", "alias": "flg_m_disp_made"},
+            {"expression": "sum(flg_a_disp_made)", "alias": "flg_a_disp_made"},
+            {"expression": "count(*)", "alias": " cnt_calls"}
+        ]
+    }
+}

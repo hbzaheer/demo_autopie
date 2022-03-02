@@ -1,0 +1,33 @@
+{
+    "recipe_type" : "blend_join",
+    "target_fact" : "calls",
+    "source_fact" : "dispositions",
+    "ingredients": {  
+        "conjunctions": [
+            "s.agent_id = t.agent_id",
+            "s.customer_id = t.customer_id",
+            "date(s.time_disposition_made) = date(t.time_call_start)",
+            "s.time_disposition_made >= t.time_call_start - interval '120 second'",
+            "s.time_disposition_made <= t.time_call_end + interval '120 second'"
+        ],
+        "match_preferences": [
+            "case when s.time_disposition_made between t.time_call_start and t.time_call_end then 1 else 0 end",
+            "extract(epoch from greatest(s.time_disposition_made - t.time_call_end, t.time_call_start - s.time_disposition_made))::int"
+        ],
+        "matched_expressions": [
+            {"expression": "s.flg_k_disp_made"},
+            {"expression": "s.flg_m_disp_made"},
+            {"expression": "s.flg_a_disp_made"},
+            {"expression": "s.time_disposition_made"}
+        ],
+        "from_source_to_target_mapping": "best",
+        "at_target_choose_sources": "collapse",
+        "target_collapse_aggregations": [
+            {"expression": "max(flg_k_disp_made)", "alias": "flg_k_disp_made"},
+            {"expression": "max(flg_m_disp_made)", "alias": "flg_m_disp_made"},
+            {"expression": "max(flg_a_disp_made)", "alias": "flg_a_disp_made"},
+            {"expression": "min(time_disposition_made)", "alias": "time_first_disposition_made"},
+            {"expression": "max(time_disposition_made)", "alias": "time_last_disposition_made"}
+        ]
+    }
+}

@@ -1,0 +1,27 @@
+{
+    "recipe_type" : "collect_fact",
+    "target_fact" : {
+        "id": "crm", 
+        "entity_and_dims": "customer_id",
+        "date":"date_data"
+    },
+    "ingredients": {
+        "expression_extract": {  
+            "source_raw": "testsatmap.crm",
+            "expression_list": [
+                {"expression": "data_date", "alias": "date_data"},
+                {"expression": "trim(customer_id)",  "alias": "customer_id"},             
+                {"expression": "customer_num_attrib", "alias": "num_attrib"},
+                {"expression": "customer_cat_attrib",  "alias": "cat_attrib"}
+            ]
+        },
+        "filter_conjunctions": [
+            "customer_id is not null"
+        ],
+        "incremental_update_on": "date_data",
+        "deduplication": {
+            "grouping_key": "customer_id, date_data",
+            "preference": "arbitrary"
+        }
+    }
+}
